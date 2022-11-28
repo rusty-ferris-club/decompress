@@ -44,7 +44,7 @@ impl Decompressor for Zip {
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
         use std::fs;
-        let mut rdr = ZipArchive::new(BufReader::new(File::open(&archive)?))
+        let mut rdr = ZipArchive::new(BufReader::new(File::open(archive)?))
             .map_err(|err| DecompressError::Error(err.to_string()))?;
 
         if !to.exists() {
@@ -75,7 +75,7 @@ impl Decompressor for Zip {
             } else {
                 if let Some(p) = outpath.parent() {
                     if !p.exists() {
-                        fs::create_dir_all(&p)?;
+                        fs::create_dir_all(p)?;
                     }
                 }
                 let mut outfile = fs::File::create(&outpath)?;

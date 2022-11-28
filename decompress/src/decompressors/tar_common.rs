@@ -13,7 +13,7 @@ pub fn tar_extract(
     opts: &ExtractOpts,
 ) -> Result<(), DecompressError> {
     if !to.exists() {
-        fs::create_dir_all(&to)?;
+        fs::create_dir_all(to)?;
     }
 
     // alternative impl: just unpack, and then mv everything back X levels
@@ -38,7 +38,7 @@ pub fn tar_extract(
         } else {
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
-                    fs::create_dir_all(&p)?;
+                    fs::create_dir_all(p)?;
                 }
             }
 

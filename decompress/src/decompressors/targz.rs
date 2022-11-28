@@ -43,7 +43,7 @@ impl Decompressor for Targz {
         to: &Path,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(&archive)?);
+        let fd = BufReader::new(File::open(archive)?);
         let mut out: Archive<Box<dyn Read>> =
             Archive::new(Box::new(flate2::bufread::GzDecoder::new(fd)));
 

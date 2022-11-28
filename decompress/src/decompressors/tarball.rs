@@ -42,7 +42,7 @@ impl Decompressor for Tarball {
         to: &Path,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(&archive)?);
+        let fd = BufReader::new(File::open(archive)?);
         let mut out: tar::Archive<Box<dyn Read>> = tar::Archive::new(Box::new(fd));
 
         tar_extract(&mut out, to, opts)?;

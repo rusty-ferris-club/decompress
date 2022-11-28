@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(clippy::uninlined_format_args)]
 
 use clap::{AppSettings, Arg, Command};
 use xtaskops::ops;

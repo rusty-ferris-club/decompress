@@ -45,11 +45,11 @@ impl Decompressor for Ar {
         to: &Path,
         _opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(&archive)?);
+        let fd = BufReader::new(File::open(archive)?);
         let mut out: Archive<Box<dyn Read>> = Archive::new(Box::new(fd));
 
         if !to.exists() {
-            fs::create_dir_all(&to)?;
+            fs::create_dir_all(to)?;
         }
 
         // alternative impl: just unpack, and then mv everything back X levels

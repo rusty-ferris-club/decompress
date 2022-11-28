@@ -43,7 +43,7 @@ impl Decompressor for Tarbz {
         to: &Path,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(&archive)?);
+        let fd = BufReader::new(File::open(archive)?);
         let mut out: Archive<Box<dyn Read>> =
             Archive::new(Box::new(bzip2::bufread::BzDecoder::new(fd)));
 

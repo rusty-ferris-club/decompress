@@ -73,19 +73,19 @@ impl Default for Decompress {
         Self {
             decompressors: vec![
                 #[cfg(feature = "targz")]
-                Box::new(crate::decompressors::targz::Targz::default()),
+                Box::<decompressors::targz::Targz>::default(),
                 #[cfg(feature = "zip")]
-                Box::new(crate::decompressors::zip::Zip::default()),
+                Box::<decompressors::zip::Zip>::default(),
                 #[cfg(feature = "tarball")]
-                Box::new(crate::decompressors::tarball::Tarball::default()),
+                Box::<decompressors::tarball::Tarball>::default(),
                 #[cfg(feature = "tarxz")]
-                Box::new(crate::decompressors::tarxz::Tarxz::default()),
+                Box::<decompressors::tarxz::Tarxz>::default(),
                 #[cfg(feature = "tarbz")]
-                Box::new(crate::decompressors::tarbz::Tarbz::default()),
+                Box::<decompressors::tarbz::Tarbz>::default(),
                 #[cfg(feature = "tarzst")]
-                Box::new(crate::decompressors::tarzst::Tarzst::default()),
+                Box::<decompressors::tarzst::Tarzst>::default(),
                 #[cfg(feature = "ar")]
-                Box::new(crate::decompressors::ar::Ar::default()),
+                Box::<decompressors::ar::Ar>::default(),
             ],
         }
     }

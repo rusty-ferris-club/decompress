@@ -43,7 +43,7 @@ impl Decompressor for Tarzst {
         to: &Path,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(&archive)?);
+        let fd = BufReader::new(File::open(archive)?);
         let mut out: Archive<Box<dyn Read>> =
             Archive::new(Box::new(zstd::stream::read::Decoder::new(fd)?));
 
