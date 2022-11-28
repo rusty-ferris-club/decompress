@@ -3,14 +3,13 @@ name = "decompress"
 version = "0.1.0"
 edition = "2021"
 
-# description = "..."
-# authors = ["... <...>"]
-# documentation = "https://docs.rs/..."
-# repository = "..."
-# categories = ["...", "..."]
-# keywords = ["...", "..."]
-# license = "Apache-2.0"
-# readme = "../README.md"
+description = "Extracting archives made easy"
+authors = ["Dotan Nahum <dotan@rng0.io>"]
+documentation = "https://docs.rs/decompress/"
+repository = "https://github.com/rusty-ferris-club/decompress"
+keywords = ["compression", "archive", "unpack", "tar", "zip"]
+license = "Apache-2.0"
+readme = "../README.md"
 
 [features]
 default = ["all"]
