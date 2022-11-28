@@ -87,8 +87,17 @@ impl DirDiff {
     /// # Errors
     /// Returns error if IO fails
     pub fn compare(&self, left_folder: &Path, right_folder: &Path) -> Result<Diff, Error> {
-        if !left_folder.exists() || !right_folder.exists() {
-            return Err(Error::Error("one or more folders missing".to_string()));
+        if !left_folder.exists() {
+            return Err(Error::Error(format!(
+                "folder: '{:?}' is missing",
+                left_folder
+            )));
+        }
+        if !right_folder.exists() {
+            return Err(Error::Error(format!(
+                "folder: '{:?}' is missing",
+                right_folder
+            )));
         }
 
         let mut diff_result = Diff {
