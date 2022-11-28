@@ -13,7 +13,7 @@ fn main() {
 
     let archive = matches.get_one::<String>("archive").expect("required");
     let to = matches.get_one::<String>("out").expect("required");
-    let strip = if matches.get_flag("strip") { 1 } else { 0 };
+    let strip = usize::from(matches.get_flag("strip"));
     let res = decompress::decompress(archive, to, &ExtractOpts { strip });
     println!("{:?}", res);
 }

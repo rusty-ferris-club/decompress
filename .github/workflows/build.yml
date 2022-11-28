@@ -53,7 +53,7 @@ jobs:
       - name: Install cargo-hack
         uses: taiki-e/install-action@cargo-hack
 
-      - name: Run xtask coverage
+      - name: Run xtask powerset
         uses: actions-rs/cargo@v1
         with:
           command: xtask

@@ -58,6 +58,16 @@ fn dec_test(
 ) -> Result<Decompression, DecompressError> {
     let from = format!("tests/fixtures/{}", archive);
 
+    // poor man's setup: empty folders can't appear in github
+    vec!["bare_zip_1", "bare_tgz_1", "bare_txz_1"]
+        .iter()
+        .map(|p| format!("tests/fixtures/{}", p))
+        .for_each(|p| {
+            if !Path::new(&p).exists() {
+                let _res = fs::create_dir_all(&p);
+            }
+        });
+
     let to = format!("tests/out/{}", outdir);
     if Path::new(&to).exists() {
         let _res = fs::remove_dir_all(&to);
