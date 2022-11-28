@@ -87,7 +87,9 @@ impl Decompressor for Ar {
                 continue;
             }
 
+            #[cfg(unix)]
             let mode = entry.header().mode();
+
             let mut outfile = fs::File::create(&outpath)?;
             io::copy(&mut BufReader::new(entry), &mut outfile)?;
 

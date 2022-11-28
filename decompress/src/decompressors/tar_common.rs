@@ -43,7 +43,10 @@ pub fn tar_extract(
             }
 
             let mut outfile = fs::File::create(&outpath)?;
+
+            #[cfg(unix)]
             let h = entry.header().mode();
+
             io::copy(&mut BufReader::new(entry), &mut outfile)?;
 
             #[cfg(unix)]
