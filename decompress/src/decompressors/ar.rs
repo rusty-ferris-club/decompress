@@ -2,7 +2,6 @@ use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
 use ar::Archive;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
 use std::{fs, io};
 use std::{
@@ -60,10 +59,11 @@ impl Decompressor for Ar {
             let filepath = {
                 #[cfg(windows)]
                 {
-                    PathBuf::from(String::from_utf8(header.identifier().into())?)
+                    PathBuf::from(String::from_utf8_lossy(header.identifier()).to_string())
                 }
                 #[cfg(unix)]
                 {
+                    use std::ffi::OsStr;
                     use std::os::unix::prelude::OsStrExt;
                     PathBuf::from(OsStr::from_bytes(header.identifier()))
                 }
