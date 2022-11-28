@@ -1,6 +1,11 @@
 
 # Decompress
 
+[<img alt="github" src="https://img.shields.io/badge/github-rusty_ferris_club/decompress-8dagcb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/rusty-ferris-club/decompress)
+[<img alt="crates.io" src="https://img.shields.io/crates/v/decompress.svg?style=for-the-badge&color=fc8d62&logo=rust" height="20">](https://crates.io/crates/decompress)
+[<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-decompress-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs" height="20">](https://docs.rs/decompress)
+[<img alt="build status" src="https://img.shields.io/github/workflow/status/rusty-ferris-club/decompress/Build/master?style=for-the-badge" height="20">](https://github.com/rusty-ferris-club/decompress/actions?query=branch%3Amaster)
+
 A library that supports decompression of archives in multiple formats, inspired by ergonomics from Node's [decompress](https://github.com/kevva/decompress).
 
 * Includes a default stack of decompressors supporting: `zip`, `tar`, `tar.gz`, `tar.bz2`, `tar.xz`, `tar.zst` (zstd compression), `ar` (Unix Archive)
