@@ -241,14 +241,13 @@ dependencies = [
  "ar",
  "bzip2",
  "clap 4.0.27",
+ "dircmp",
  "flate2",
  "lazy_static",
  "regex",
  "rstest",
- "sha2",
  "tar",
  "thiserror",
- "walkdir",
  "xz",
  "zip",
  "zstd 0.12.0+zstd.1.5.2",
@@ -274,6 +273,18 @@ dependencies = [
  "block-buffer",
  "crypto-common",
  "subtle",
+]
+
+[[package]]
+name = "dircmp"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3ca7fa3ba397980657070e679f412acddb7a372f1793ff68ef0bbe708680f0f"
+dependencies = [
+ "regex",
+ "sha2",
+ "thiserror",
+ "walkdir",
 ]
 
 [[package]]

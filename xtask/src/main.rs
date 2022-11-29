@@ -4,6 +4,7 @@ use clap::{AppSettings, Arg, Command};
 use xtaskops::ops;
 use xtaskops::tasks;
 
+
 fn main() -> Result<(), anyhow::Error> {
     let cli = Command::new("xtask")
         .setting(AppSettings::SubcommandRequiredElseHelp)
@@ -37,6 +38,7 @@ fn main() -> Result<(), anyhow::Error> {
         Some(("bloat-deps", _)) => tasks::bloat_deps(),
         Some(("bloat-time", _)) => tasks::bloat_time(),
         _ => unreachable!("unreachable branch"),
+        
     };
     res
 }

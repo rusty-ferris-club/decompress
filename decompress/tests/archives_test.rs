@@ -1,8 +1,7 @@
-mod compare;
 use std::{fs, path::Path};
 
-use compare::DirDiff;
 use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOpts};
+use dircmp::Comparison;
 use regex::Regex;
 use rstest::rstest;
 
@@ -77,7 +76,7 @@ fn dec_test(
     let res = res?;
 
     // need to do a 2way for full comparison.
-    let diff = DirDiff::default();
+    let diff = Comparison::default();
 
     let result = diff
         .compare(
