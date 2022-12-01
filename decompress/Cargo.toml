@@ -13,7 +13,7 @@ readme = "../README.md"
 
 [features]
 default = ["all"]
-all = ["tarball", "tarxz", "targz", "tarbz", "tarzst", "zip", "ar"]
+all = ["tarball", "tarxz", "targz", "tarbz", "tarzst", "zip", "ar", "gz"]
 
 tarball = ["dep:tar"]
 tarzst = ["tarball", "dep:zstd"]
@@ -21,6 +21,7 @@ targz = ["tarball", "dep:flate2"]
 tarbz = ["tarball", "dep:bzip2"]
 tarxz = ["tarball", "dep:xz"]
 zip = ["dep:zip"]
+gz = ["dep:flate2"]
 ar = ["dep:ar"]
 
 [dependencies]

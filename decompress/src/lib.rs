@@ -72,10 +72,10 @@ impl Default for Decompress {
     fn default() -> Self {
         Self {
             decompressors: vec![
-                #[cfg(feature = "targz")]
-                Box::<decompressors::targz::Targz>::default(),
                 #[cfg(feature = "zip")]
                 Box::<decompressors::zip::Zip>::default(),
+                #[cfg(feature = "targz")]
+                Box::<decompressors::targz::Targz>::default(),
                 #[cfg(feature = "tarball")]
                 Box::<decompressors::tarball::Tarball>::default(),
                 #[cfg(feature = "tarxz")]
@@ -84,6 +84,10 @@ impl Default for Decompress {
                 Box::<decompressors::tarbz::Tarbz>::default(),
                 #[cfg(feature = "tarzst")]
                 Box::<decompressors::tarzst::Tarzst>::default(),
+                // order is important, `gz` is placed only after the targz variant did not match
+                // if it's placed above targz, it will unpack and leave a tar archive.
+                #[cfg(feature = "gz")]
+                Box::<decompressors::gz::Gz>::default(),
                 #[cfg(feature = "ar")]
                 Box::<decompressors::ar::Ar>::default(),
             ],

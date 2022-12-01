@@ -13,6 +13,9 @@ pub mod tarxz;
 #[cfg(feature = "tarbz")]
 pub mod tarbz;
 
+#[cfg(feature = "gz")]
+pub mod gz;
+
 #[cfg(feature = "targz")]
 pub mod targz;
 
