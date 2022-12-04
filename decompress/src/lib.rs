@@ -90,10 +90,13 @@ impl Default for Decompress {
                 Box::<decompressors::gz::Gz>::default(),
                 #[cfg(feature = "ar")]
                 Box::<decompressors::ar::Ar>::default(),
+                #[cfg(feature = "bz2")]
+                Box::<decompressors::bz2::Bz2>::default(),
             ],
         }
     }
 }
+
 impl Decompress {
     #[must_use]
     pub fn build(decompressors: Vec<Box<dyn Decompressor>>) -> Self {
