@@ -24,3 +24,6 @@ pub mod zip;
 
 #[cfg(feature = "ar")]
 pub mod ar;
+
+#[cfg(feature = "bz2")]
+pub mod bz2;

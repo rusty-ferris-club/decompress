@@ -29,6 +29,7 @@ use rstest::rstest;
 #[case("inner.tar.bz2", "inner_bz2_1", 1)]
 #[case("bare.ar", "bare_ar", 0)]
 #[case("sub.txt.gz", "gz_1", 0)]
+#[case("sub.txt.bz2", "bz_2", 0)]
 #[trace]
 fn test_archives(#[case] archive: &str, #[case] outdir: &str, #[case] strip: usize) {
     dec_test(&Decompress::default(), archive, outdir, strip).unwrap();
