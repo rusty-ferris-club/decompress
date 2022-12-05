@@ -27,3 +27,9 @@ pub mod ar;
 
 #[cfg(feature = "bz2")]
 pub mod bz2;
+
+#[cfg(feature = "xz")]
+pub mod xz;
+
+#[cfg(feature = "zstd")]
+pub mod zstd;

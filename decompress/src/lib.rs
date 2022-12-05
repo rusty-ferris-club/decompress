@@ -92,6 +92,10 @@ impl Default for Decompress {
                 Box::<decompressors::ar::Ar>::default(),
                 #[cfg(feature = "bz2")]
                 Box::<decompressors::bz2::Bz2>::default(),
+                #[cfg(feature = "xz")]
+                Box::<decompressors::xz::Xz>::default(),
+                #[cfg(feature = "zstd")]
+                Box::<decompressors::zstd::Zstd>::default(),
             ],
         }
     }
