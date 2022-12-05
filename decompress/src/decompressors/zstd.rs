@@ -4,7 +4,7 @@ use regex::Regex;
 use std::{fs, fs::File, io, io::BufReader, path::Path};
 
 lazy_static! {
-    static ref RE: Regex = Regex::new(r"(?i)\.xz$").unwrap();
+    static ref RE: Regex = Regex::new(r"(?i)\.zst$").unwrap();
 }
 
 #[derive(Default)]
@@ -38,7 +38,7 @@ impl Decompressor for Zstd {
         _opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
         let fd = BufReader::new(File::open(archive)?);
-        let dec = xz::bufread::XzDecoder::new(fd);
+        let dec = zstd::stream::read::Decoder::new(fd)?;
         if !Path::new(to).exists() {
             let _res = fs::create_dir_all(to);
         }
