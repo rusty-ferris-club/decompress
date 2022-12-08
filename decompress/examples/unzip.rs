@@ -3,7 +3,6 @@
 use clap::{arg, command};
 use decompress::{decompressors, ExtractOptsBuilder};
 use regex::Regex;
-use std::path::Path;
 
 fn main() {
     let matches = command!()
@@ -26,10 +25,11 @@ fn main() {
         to,
         &ExtractOptsBuilder::default()
             .strip(strip)
-            .filter(|path: &Path| {
-                let path = path.to_str().unwrap();
-
-                path.eq("abc")
+            .filter(|path| {
+                if let Some(path) = path.to_str() {
+                    return path.ends_with("ex.sh");
+                }
+                false
             })
             .build()
             .unwrap(),
