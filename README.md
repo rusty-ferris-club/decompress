@@ -54,6 +54,25 @@ let decompressor = decompress::Decompress::build(vec![decompressors::zip::Zip::b
 // decompressor.decompress(...)
 ```
 
+It's also possible to filter unwanted files, similar to [nodejs decompress](https://github.com/kevva/decompress)
+```rust
+let decompressor = decompress::Decompress::default();
+let res = decompressor.decompress(
+    archive,
+    to,
+    &ExtractOptsBuilder::default()
+        .strip(strip)
+        .filter(|path| {
+            if let Some(path) = path.to_str() {
+            return path.ends_with("abc.sh");
+            }
+            false
+        })
+        .build()
+        .unwrap(),
+);
+```
+
 
 # Copyright
 
