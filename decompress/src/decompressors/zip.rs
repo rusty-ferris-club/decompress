@@ -70,6 +70,10 @@ impl Decompressor for Zip {
                 continue;
             }
 
+            if !(opts.filter)(outpath.as_path()) {
+                continue;
+            }
+
             if file.name().ends_with('/') {
                 fs::create_dir_all(&outpath)?;
             } else {

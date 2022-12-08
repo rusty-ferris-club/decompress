@@ -1,7 +1,9 @@
 #![allow(clippy::cognitive_complexity)]
+
 use clap::{arg, command};
-use decompress::{decompressors, ExtractOpts};
+use decompress::{decompressors, ExtractOptsBuilder};
 use regex::Regex;
+use std::path::Path;
 
 fn main() {
     let matches = command!()
@@ -18,6 +20,20 @@ fn main() {
     let decompressor = decompress::Decompress::build(vec![decompressors::zip::Zip::build(Some(
         Regex::new(r".*").unwrap(),
     ))]);
-    let res = decompressor.decompress(archive, to, &ExtractOpts { strip });
-    println!("{:?}", res);
+
+    let res = decompressor.decompress(
+        archive,
+        to,
+        &ExtractOptsBuilder::default()
+            .strip(strip)
+            .filter(|path: &Path| {
+                let path = path.to_str().unwrap();
+
+                path.eq("abc")
+            })
+            .build()
+            .unwrap(),
+    );
+
+    println!("{res:?}");
 }
