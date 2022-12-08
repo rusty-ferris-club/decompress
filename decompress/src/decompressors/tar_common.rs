@@ -33,6 +33,10 @@ pub fn tar_extract(
             continue;
         }
 
+        if !(opts.filter)(outpath.as_path()) {
+            continue;
+        }
+
         if entry.header().entry_type() == tar::EntryType::Directory {
             // directories.push(entry);
         } else {

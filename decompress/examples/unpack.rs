@@ -1,6 +1,7 @@
 #![allow(clippy::cognitive_complexity)]
+
 use clap::{arg, command};
-use decompress::ExtractOpts;
+use decompress::ExtractOptsBuilder;
 
 fn main() {
     let matches = command!()
@@ -14,6 +15,10 @@ fn main() {
     let archive = matches.get_one::<String>("archive").expect("required");
     let to = matches.get_one::<String>("out").expect("required");
     let strip = usize::from(matches.get_flag("strip"));
-    let res = decompress::decompress(archive, to, &ExtractOpts { strip });
-    println!("{:?}", res);
+    let res = decompress::decompress(
+        archive,
+        to,
+        &ExtractOptsBuilder::default().strip(strip).build().unwrap(),
+    );
+    println!("{res:?}");
 }

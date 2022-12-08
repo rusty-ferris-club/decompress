@@ -21,6 +21,7 @@
 #![allow(clippy::module_name_repetitions)]
 pub mod decompressors;
 
+use derive_builder::Builder;
 use std::{convert::Infallible, io, path::Path};
 use thiserror::Error;
 
@@ -39,9 +40,20 @@ pub enum DecompressError {
     MissingCompressor,
 }
 
-#[derive(Default)]
+#[derive(Builder)]
+#[builder(pattern = "owned")]
 pub struct ExtractOpts {
     pub strip: usize,
+
+    #[builder(setter(custom), default = "Box::new(|_| true)")]
+    pub filter: Box<dyn Fn(&Path) -> bool>,
+}
+
+impl ExtractOptsBuilder {
+    pub fn filter(mut self, value: impl Fn(&Path) -> bool + 'static) -> ExtractOptsBuilder {
+        self.filter = Some(Box::new(value));
+        self
+    }
 }
 
 #[derive(Debug)]

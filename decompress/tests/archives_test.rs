@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOpts};
+use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOptsBuilder};
 use dircmp::Comparison;
 use regex::Regex;
 use rstest::rstest;
@@ -59,24 +59,28 @@ fn dec_test(
     outdir: &str,
     strip: usize,
 ) -> Result<Decompression, DecompressError> {
-    let from = format!("tests/fixtures/{}", archive);
+    let from = format!("tests/fixtures/{archive}");
 
     // poor man's setup: empty folders can't appear in github
     vec!["bare_zip_1", "bare_tgz_1", "bare_txz_1"]
         .iter()
-        .map(|p| format!("tests/expected/{}", p))
+        .map(|p| format!("tests/expected/{p}"))
         .for_each(|p| {
             if !Path::new(&p).exists() {
                 let _res = fs::create_dir_all(&p);
             }
         });
 
-    let to = format!("tests/out/{}", outdir);
+    let to = format!("tests/out/{outdir}");
     if Path::new(&to).exists() {
         let _res = fs::remove_dir_all(&to);
     }
 
-    let res = decompressor.decompress(&from, &to, &ExtractOpts { strip });
+    let res = decompressor.decompress(
+        &from,
+        &to,
+        &ExtractOptsBuilder::default().strip(strip).build().unwrap(),
+    );
     let res = res?;
 
     // need to do a 2way for full comparison.
@@ -88,7 +92,50 @@ fn dec_test(
             Path::new(&format!("tests/expected/{}", outdir)),
         )
         .unwrap();
-    println!("{:?}", result);
+
+    println!("{result:?}");
+    assert!(result.is_empty());
+    Ok(res)
+}
+
+#[rstest]
+#[case("bare.tar.gz", "bare_filter_tgz_0", "targz")]
+#[case("bare.zip", "bare_filter_zip_0", "zip")]
+#[trace]
+fn test_filter(#[case] archive: &str, #[case] outdir: &str, #[case] id: &str) {
+    filter_assertions(archive, outdir, id).unwrap();
+}
+
+fn filter_assertions(from: &str, to: &str, id: &str) -> Result<Decompression, DecompressError> {
+    let from = format!("tests/fixtures/{from}");
+    let out = format!("tests/out/{to}");
+
+    if Path::new(&out).exists() {
+        fs::remove_dir_all(&out).unwrap();
+    }
+
+    let res = Decompress::default().decompress(
+        from,
+        out.clone(),
+        &ExtractOptsBuilder::default()
+            .strip(0)
+            .filter(|path| {
+                if let Some(path) = path.to_str() {
+                    return path.ends_with("ex.sh");
+                }
+                false
+            })
+            .build()
+            .unwrap(),
+    );
+
+    let res = res.unwrap();
+    assert_eq!(res.id, id);
+
+    let result = Comparison::default()
+        .compare(Path::new(&out), Path::new(&format!("tests/expected/{to}")))
+        .unwrap();
+
     assert!(result.is_empty());
     Ok(res)
 }
