@@ -41,6 +41,9 @@ pub enum DecompressError {
     MissingCompressor,
 }
 
+type FilterFn = dyn Fn(&Path) -> bool;
+type MapFn = dyn Fn(&Path) -> Cow<'_, Path>;
+
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 pub struct ExtractOpts {
@@ -48,10 +51,10 @@ pub struct ExtractOpts {
     pub strip: usize,
 
     #[builder(setter(custom), default = "Box::new(|_| true)")]
-    pub filter: Box<dyn Fn(&Path) -> bool>,
+    pub filter: Box<FilterFn>,
 
     #[builder(setter(custom), default = "Box::new(|path| Cow::from(path))")]
-    pub map: Box<dyn Fn(&Path) -> Cow<'_, Path>>,
+    pub map: Box<MapFn>,
 }
 
 impl ExtractOptsBuilder {
