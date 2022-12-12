@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::{fs, path::Path};
 
 use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOptsBuilder};
@@ -120,7 +119,7 @@ fn test_map(#[case] archive: &str, #[case] outdir: &str, #[case] id: &str) {
                 "abc-{}",
                 path.file_name().unwrap().to_str().unwrap()
             ));
-            Cow::from(path)
+            path.into()
         })
         .build()
         .unwrap();

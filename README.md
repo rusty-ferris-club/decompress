@@ -87,7 +87,7 @@ let res = decompressor.decompress(
                 "abc-{}",
                 path.file_name().unwrap().to_str().unwrap()
             ));
-            Cow::from(path)
+            path.into()
         })
         .build()
         .unwrap(),
