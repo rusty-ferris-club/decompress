@@ -48,6 +48,6 @@ impl Decompressor for Zstd {
             })?))?;
 
         io::copy(&mut BufReader::new(dec), &mut outfile)?;
-        Ok(Decompression { id: "xz" })
+        Ok(Decompression { id: "zst" })
     }
 }

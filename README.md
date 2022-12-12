@@ -73,6 +73,27 @@ let res = decompressor.decompress(
 );
 ```
 
+Mapping paths is also supported
+```rust
+let decompressor = decompress::Decompress::default();
+let res = decompressor.decompress(
+    archive,
+    to,
+    &ExtractOptsBuilder::default()
+        .strip(strip)
+        .map(|path| {
+            let mut path = path.to_path_buf();
+            path.set_file_name(format!(
+                "abc-{}",
+                path.file_name().unwrap().to_str().unwrap()
+            ));
+            path.into()
+        })
+        .build()
+        .unwrap(),
+);
+```
+
 
 # Copyright
 

@@ -74,6 +74,8 @@ impl Decompressor for Zip {
                 continue;
             }
 
+            let outpath = (opts.map)(outpath.as_path());
+
             if file.name().ends_with('/') {
                 fs::create_dir_all(&outpath)?;
             } else {

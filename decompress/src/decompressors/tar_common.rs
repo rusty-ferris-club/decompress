@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::{
     fs::{self},
     io::{self, BufReader, Read},
@@ -37,9 +38,9 @@ pub fn tar_extract(
             continue;
         }
 
-        if entry.header().entry_type() == tar::EntryType::Directory {
-            // directories.push(entry);
-        } else {
+        let outpath: Cow<Path> = (opts.map)(outpath.as_path());
+
+        if entry.header().entry_type() != tar::EntryType::Directory {
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
                     fs::create_dir_all(p)?;
