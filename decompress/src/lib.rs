@@ -22,6 +22,7 @@
 pub mod decompressors;
 
 use derive_builder::Builder;
+use std::borrow::Cow;
 use std::{convert::Infallible, io, path::Path};
 use thiserror::Error;
 
@@ -43,15 +44,24 @@ pub enum DecompressError {
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 pub struct ExtractOpts {
+    #[builder(default)]
     pub strip: usize,
 
     #[builder(setter(custom), default = "Box::new(|_| true)")]
     pub filter: Box<dyn Fn(&Path) -> bool>,
+
+    #[builder(setter(custom), default = "Box::new(|path| Cow::from(path))")]
+    pub map: Box<dyn Fn(&Path) -> Cow<'_, Path>>,
 }
 
 impl ExtractOptsBuilder {
     pub fn filter(mut self, value: impl Fn(&Path) -> bool + 'static) -> ExtractOptsBuilder {
         self.filter = Some(Box::new(value));
+        self
+    }
+
+    pub fn map(mut self, value: impl Fn(&Path) -> Cow<'_, Path> + 'static) -> ExtractOptsBuilder {
+        self.map = Some(Box::new(value));
         self
     }
 }
