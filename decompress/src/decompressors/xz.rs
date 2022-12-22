@@ -43,7 +43,7 @@ impl Decompressor for Xz {
             let _res = fs::create_dir_all(to);
         }
         let mut outfile =
-            fs::File::create(&to.join(archive.file_stem().ok_or_else(|| {
+            fs::File::create(to.join(archive.file_stem().ok_or_else(|| {
                 DecompressError::Error("cannot compose a file name".to_string())
             })?))?;
 

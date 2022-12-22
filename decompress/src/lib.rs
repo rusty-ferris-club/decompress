@@ -58,12 +58,15 @@ pub struct ExtractOpts {
 }
 
 impl ExtractOptsBuilder {
-    pub fn filter(mut self, value: impl Fn(&Path) -> bool + 'static) -> ExtractOptsBuilder {
+    /// Given a predicate, filter a path in.
+    #[must_use]
+    pub fn filter(mut self, value: impl Fn(&Path) -> bool + 'static) -> Self {
         self.filter = Some(Box::new(value));
         self
     }
-
-    pub fn map(mut self, value: impl Fn(&Path) -> Cow<'_, Path> + 'static) -> ExtractOptsBuilder {
+    /// Given a mapping function, transform a path into a different or similar path
+    #[must_use]
+    pub fn map(mut self, value: impl Fn(&Path) -> Cow<'_, Path> + 'static) -> Self {
         self.map = Some(Box::new(value));
         self
     }
@@ -74,13 +77,29 @@ pub struct Decompression {
     pub id: &'static str,
 }
 
+///
+/// `Decompressor` is a trait that you can implement to add your own decompressor type.
+/// A `Decompressor` is inserted into a stack, where given a potential archive file,
+/// many decompressors may attempt to test if they're capable of unpacking it.
+/// The first `Decompressor` which will test true will be the one selected to unpack.
+///
+/// It is _recommended_ to let a user pick a regex for testing against a `Path`, although
+/// there is no limit to what you can do, as long as a user can override the Decompressor
+/// decision when building a custom stack.
+///
 pub trait Decompressor {
+    ///
+    /// Test if this `Decompressor` can unpack an archive, given a path.
+    /// The convention is to use `Regex` internally to test a path, because this is
+    /// a convenient way for end users to override the behavior.
+    /// You may choose to implement a different, but configurable, testing strategy.
     fn test(&self, archive: &Path) -> bool;
     ///
     /// Decompress an archive
+    ///
     /// # Errors
     ///
-    /// This function will return an error
+    /// This function will return an error if unpacking fails.
     fn decompress(
         &self,
         archive: &Path,
@@ -89,6 +108,9 @@ pub trait Decompressor {
     ) -> Result<Decompression, DecompressError>;
 }
 
+///
+/// Represent a stack of decompressors with a default stack preconfigured when calling `new`
+///
 pub struct Decompress {
     decompressors: Vec<Box<dyn Decompressor>>,
 }
@@ -127,6 +149,7 @@ impl Default for Decompress {
 }
 
 impl Decompress {
+    /// Build given a custom stack of decompressors
     #[must_use]
     pub fn build(decompressors: Vec<Box<dyn Decompressor>>) -> Self {
         Self { decompressors }
@@ -151,6 +174,14 @@ impl Decompress {
             return dec.decompress(archive.as_ref(), to.as_ref(), opts);
         }
         Err(DecompressError::MissingCompressor)
+    }
+
+    /// Returns `true` if any of the decompressors in the stack can decompress this
+    /// specific archive
+    pub fn can_decompress<P: AsRef<Path>>(&self, archive: P) -> bool {
+        self.decompressors
+            .iter()
+            .any(|dec| dec.test(archive.as_ref()))
     }
 }
 

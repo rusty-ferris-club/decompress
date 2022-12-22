@@ -38,7 +38,7 @@ pub fn tar_extract(
             continue;
         }
 
-        let outpath: Cow<Path> = (opts.map)(outpath.as_path());
+        let outpath: Cow<'_, Path> = (opts.map)(outpath.as_path());
 
         if entry.header().entry_type() != tar::EntryType::Directory {
             if let Some(p) = outpath.parent() {

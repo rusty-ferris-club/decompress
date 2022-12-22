@@ -48,7 +48,7 @@ impl Decompressor for Bz2 {
         }
 
         let mut outfile =
-            fs::File::create(&to.join(archive.file_stem().ok_or_else(|| {
+            fs::File::create(to.join(archive.file_stem().ok_or_else(|| {
                 DecompressError::Error("cannot compose a file name".to_string())
             })?))?;
 

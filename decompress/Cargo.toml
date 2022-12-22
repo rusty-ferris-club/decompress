@@ -1,6 +1,6 @@
 [package]
 name = "decompress"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 description = "Extracting archives made easy"
@@ -13,7 +13,19 @@ readme = "../README.md"
 
 [features]
 default = ["all"]
-all = ["tarball", "tarxz", "targz", "tarbz", "tarzst", "zip", "ar", "gz", "bz2", "xz", "zstd"]
+all = [
+  "tarball",
+  "tarxz",
+  "targz",
+  "tarbz",
+  "tarzst",
+  "zip",
+  "ar",
+  "gz",
+  "bz2",
+  "xz",
+  "zstd",
+]
 
 tarball = ["dep:tar"]
 tarzst = ["tarball", "dep:zstd"]

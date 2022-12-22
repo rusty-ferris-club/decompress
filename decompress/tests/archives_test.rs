@@ -132,6 +132,12 @@ fn test_map(#[case] archive: &str, #[case] outdir: &str, #[case] id: &str) {
     assert_eq!(res.id, id);
 }
 
+#[test]
+fn test_can_decompress() {
+    assert!(Decompress::default().can_decompress("foo/bar/baz.tar.gz"));
+    assert!(!Decompress::default().can_decompress("foo/bar/baz.tar.foo"));
+}
+
 fn assertion(
     from: &str,
     to: &str,
