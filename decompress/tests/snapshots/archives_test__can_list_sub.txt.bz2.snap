@@ -1,0 +1,15 @@
+---
+source: decompress/tests/archives_test.rs
+expression: "(archive, Decompress::default().list(target))"
+---
+(
+    "sub.txt.bz2",
+    Ok(
+        Listing {
+            id: "bz2",
+            entries: [
+                "sub.txt",
+            ],
+        },
+    ),
+)

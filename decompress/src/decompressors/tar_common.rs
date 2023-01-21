@@ -8,11 +8,24 @@ use std::{
 use crate::{DecompressError, ExtractOpts};
 use tar::Archive;
 
+pub fn tar_list(out: &mut Archive<Box<dyn Read>>) -> Result<Vec<String>, DecompressError> {
+    Ok(out
+        .entries()?
+        .collect::<Result<Vec<_>, _>>()?
+        .iter()
+        .map(tar::Entry::path)
+        .collect::<Result<Vec<_>, _>>()?
+        .iter()
+        .map(|p| p.to_string_lossy().to_string())
+        .collect::<Vec<_>>())
+}
+
 pub fn tar_extract(
     out: &mut Archive<Box<dyn Read>>,
     to: &Path,
     opts: &ExtractOpts,
-) -> Result<(), DecompressError> {
+) -> Result<Vec<String>, DecompressError> {
+    let mut files = vec![];
     if !to.exists() {
         fs::create_dir_all(to)?;
     }
@@ -53,6 +66,7 @@ pub fn tar_extract(
             let h = entry.header().mode();
 
             io::copy(&mut BufReader::new(entry), &mut outfile)?;
+            files.push(outpath.to_string_lossy().to_string());
 
             #[cfg(unix)]
             {
@@ -63,5 +77,5 @@ pub fn tar_extract(
             }
         }
     }
-    Ok(())
+    Ok(files)
 }

@@ -1,0 +1,17 @@
+---
+source: decompress/tests/archives_test.rs
+expression: "(archive, Decompress::default().list(target))"
+---
+(
+    "inner.tar",
+    Ok(
+        Listing {
+            id: "tarball",
+            entries: [
+                "folder-1/",
+                "folder-1/ex.sh",
+                "folder-1/sub.txt",
+            ],
+        },
+    ),
+)

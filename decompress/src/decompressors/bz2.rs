@@ -1,4 +1,4 @@
-use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
+use crate::{DecompressError, Decompression, Decompressor, ExtractOpts, Listing};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs::File;
@@ -34,6 +34,17 @@ impl Decompressor for Bz2 {
             .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
+        Ok(Listing {
+            id: "bz2",
+            entries: vec![archive
+                .file_stem()
+                .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
+                .to_string_lossy()
+                .to_string()],
+        })
+    }
+
     fn decompress(
         &self,
         archive: &Path,
@@ -47,12 +58,17 @@ impl Decompressor for Bz2 {
             let _res = fs::create_dir_all(to);
         }
 
-        let mut outfile =
-            fs::File::create(to.join(archive.file_stem().ok_or_else(|| {
-                DecompressError::Error("cannot compose a file name".to_string())
-            })?))?;
+        let target = to.join(
+            archive
+                .file_stem()
+                .ok_or_else(|| DecompressError::Error("cannot compose a file name".to_string()))?,
+        );
+        let mut outfile = fs::File::create(&target)?;
 
         io::copy(&mut BufReader::new(dec), &mut outfile)?;
-        Ok(Decompression { id: "bz2" })
+        Ok(Decompression {
+            id: "bz2",
+            files: vec![target.to_string_lossy().to_string()],
+        })
     }
 }

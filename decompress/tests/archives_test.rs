@@ -2,6 +2,7 @@ use std::{fs, path::Path};
 
 use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOptsBuilder};
 use dircmp::Comparison;
+use insta::assert_debug_snapshot;
 use regex::Regex;
 use rstest::rstest;
 
@@ -136,6 +137,27 @@ fn test_map(#[case] archive: &str, #[case] outdir: &str, #[case] id: &str) {
 fn test_can_decompress() {
     assert!(Decompress::default().can_decompress("foo/bar/baz.tar.gz"));
     assert!(!Decompress::default().can_decompress("foo/bar/baz.tar.foo"));
+}
+
+#[rstest]
+#[case("inner.tar")]
+#[case("inner.zip")]
+#[case("inner.tar.gz")]
+#[case("inner.tar.xz")]
+#[case("inner.tar.bz2")]
+#[case("inner.tar.zst")]
+#[case("inner.tar.zst")]
+#[case("bare.ar")]
+#[case("sub.txt.gz")]
+#[case("sub.txt.bz2")]
+#[case("sub.txt.xz")]
+#[case("sub.txt.zst")]
+fn test_can_list(#[case] archive: &str) {
+    let target = format!("tests/fixtures/{archive}");
+    assert_debug_snapshot!(
+        format!("can_list_{archive}"),
+        (archive, Decompress::default().list(target))
+    );
 }
 
 fn assertion(

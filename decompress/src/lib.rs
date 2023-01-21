@@ -41,8 +41,8 @@ pub enum DecompressError {
     MissingCompressor,
 }
 
-type FilterFn = dyn Fn(&Path) -> bool;
-type MapFn = dyn Fn(&Path) -> Cow<'_, Path>;
+pub type FilterFn = dyn Fn(&Path) -> bool;
+pub type MapFn = dyn Fn(&Path) -> Cow<'_, Path>;
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
@@ -75,6 +75,13 @@ impl ExtractOptsBuilder {
 #[derive(Debug)]
 pub struct Decompression {
     pub id: &'static str,
+    pub files: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct Listing {
+    pub id: &'static str,
+    pub entries: Vec<String>,
 }
 
 ///
@@ -94,6 +101,15 @@ pub trait Decompressor {
     /// a convenient way for end users to override the behavior.
     /// You may choose to implement a different, but configurable, testing strategy.
     fn test(&self, archive: &Path) -> bool;
+
+    ///
+    /// List an archive
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if unpacking fails.
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError>;
+
     ///
     /// Decompress an archive
     ///
@@ -155,6 +171,21 @@ impl Decompress {
         Self { decompressors }
     }
 
+    /// List
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if an IO or parsing error happened
+    pub fn list<P: AsRef<Path>>(&self, archive: P) -> Result<Listing, DecompressError> {
+        if let Some(dec) = self
+            .decompressors
+            .iter()
+            .find(|dec| dec.test(archive.as_ref()))
+        {
+            return dec.list(archive.as_ref());
+        }
+        Err(DecompressError::MissingCompressor)
+    }
     /// Decompress
     ///
     /// # Errors
@@ -196,4 +227,13 @@ pub fn decompress<P: AsRef<Path>>(
     opts: &ExtractOpts,
 ) -> Result<Decompression, DecompressError> {
     Decompress::default().decompress(archive, to, opts)
+}
+
+/// List an archive with default decompressor set up
+///
+/// # Errors
+///
+/// This function will return an error if IO or parsing failed
+pub fn list<P: AsRef<Path>>(archive: P) -> Result<Listing, DecompressError> {
+    Decompress::default().list(archive)
 }

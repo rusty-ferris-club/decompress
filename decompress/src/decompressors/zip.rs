@@ -8,12 +8,18 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use zip::ZipArchive;
 
-use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
+use crate::{DecompressError, Decompression, Decompressor, ExtractOpts, Listing};
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"(?i)\.zip$").unwrap();
 }
 
+fn build_archive(archive: &Path) -> Result<ZipArchive<BufReader<File>>, DecompressError> {
+    let rdr = ZipArchive::new(BufReader::new(File::open(archive)?))
+        .map_err(|err| DecompressError::Error(err.to_string()))?;
+
+    Ok(rdr)
+}
 #[derive(Default)]
 pub struct Zip {
     re: Option<Regex>,
@@ -37,6 +43,21 @@ impl Decompressor for Zip {
             .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
+        let mut rdr = build_archive(archive)?;
+        let mut entries = vec![];
+        for i in 0..rdr.len() {
+            let file = rdr
+                .by_index(i)
+                .map_err(|err| DecompressError::Error(err.to_string()))?;
+            let filepath = file
+                .enclosed_name()
+                .ok_or_else(|| DecompressError::Error("Invalid file path".to_string()))?;
+            entries.push(filepath.to_string_lossy().to_string());
+        }
+        Ok(Listing { id: "zip", entries })
+    }
+
     fn decompress(
         &self,
         archive: &Path,
@@ -44,12 +65,13 @@ impl Decompressor for Zip {
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
         use std::fs;
-        let mut rdr = ZipArchive::new(BufReader::new(File::open(archive)?))
-            .map_err(|err| DecompressError::Error(err.to_string()))?;
 
+        let mut files = vec![];
+        let mut rdr = build_archive(archive)?;
         if !to.exists() {
             fs::create_dir_all(to)?;
         }
+
         for i in 0..rdr.len() {
             let mut file = rdr
                 .by_index(i)
@@ -86,6 +108,7 @@ impl Decompressor for Zip {
                 }
                 let mut outfile = fs::File::create(&outpath)?;
                 io::copy(&mut file, &mut outfile)?;
+                files.push(outpath.to_string_lossy().to_string());
             }
             // Get and Set permissions
             #[cfg(unix)]
@@ -96,6 +119,6 @@ impl Decompressor for Zip {
                 }
             }
         }
-        Ok(Decompression { id: "zip" })
+        Ok(Decompression { id: "zip", files })
     }
 }

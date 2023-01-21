@@ -1,4 +1,4 @@
-use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
+use crate::{DecompressError, Decompression, Decompressor, ExtractOpts, Listing};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{fs, fs::File, io, io::BufReader, path::Path};
@@ -31,6 +31,17 @@ impl Decompressor for Zstd {
             .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
+        Ok(Listing {
+            id: "zst",
+            entries: vec![archive
+                .file_stem()
+                .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
+                .to_string_lossy()
+                .to_string()],
+        })
+    }
+
     fn decompress(
         &self,
         archive: &Path,
@@ -42,12 +53,17 @@ impl Decompressor for Zstd {
         if !Path::new(to).exists() {
             let _res = fs::create_dir_all(to);
         }
-        let mut outfile =
-            fs::File::create(to.join(archive.file_stem().ok_or_else(|| {
-                DecompressError::Error("cannot compose a file name".to_string())
-            })?))?;
+        let target = to.join(
+            archive
+                .file_stem()
+                .ok_or_else(|| DecompressError::Error("cannot compose a file name".to_string()))?,
+        );
+        let mut outfile = fs::File::create(&target)?;
 
         io::copy(&mut BufReader::new(dec), &mut outfile)?;
-        Ok(Decompression { id: "zst" })
+        Ok(Decompression {
+            id: "zst",
+            files: vec![target.to_string_lossy().to_string()],
+        })
     }
 }

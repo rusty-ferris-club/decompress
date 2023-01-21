@@ -1,4 +1,4 @@
-use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
+use crate::{DecompressError, Decompression, Decompressor, ExtractOpts, Listing};
 use ar::Archive;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -14,6 +14,11 @@ lazy_static! {
     static ref RE: Regex = Regex::new(r"(?i)\.ar$").unwrap();
 }
 
+fn build_archive(archive: &Path) -> Result<Archive<Box<dyn Read>>, DecompressError> {
+    let fd = BufReader::new(File::open(archive)?);
+    let out: Archive<Box<dyn Read>> = Archive::new(Box::new(fd));
+    Ok(out)
+}
 #[derive(Default)]
 pub struct Ar {
     re: Option<Regex>,
@@ -38,14 +43,38 @@ impl Decompressor for Ar {
             .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
+        let mut out = build_archive(archive)?;
+        let mut entries = vec![];
+        while let Some(entry) = out.next_entry() {
+            let entry = entry?;
+            let header = entry.header();
+
+            let filepath = {
+                #[cfg(windows)]
+                {
+                    PathBuf::from(String::from_utf8_lossy(header.identifier()).to_string())
+                }
+                #[cfg(unix)]
+                {
+                    use std::ffi::OsStr;
+                    use std::os::unix::prelude::OsStrExt;
+                    PathBuf::from(OsStr::from_bytes(header.identifier()))
+                }
+            };
+            entries.push(filepath.to_string_lossy().to_string());
+        }
+        Ok(Listing { id: "ar", entries })
+    }
+
     fn decompress(
         &self,
         archive: &Path,
         to: &Path,
         _opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(archive)?);
-        let mut out: Archive<Box<dyn Read>> = Archive::new(Box::new(fd));
+        let mut out = build_archive(archive)?;
+        let mut files = vec![];
 
         if !to.exists() {
             fs::create_dir_all(to)?;
@@ -92,6 +121,7 @@ impl Decompressor for Ar {
 
             let mut outfile = fs::File::create(&outpath)?;
             io::copy(&mut BufReader::new(entry), &mut outfile)?;
+            files.push(outpath.to_string_lossy().to_string());
 
             #[cfg(unix)]
             {
@@ -99,6 +129,6 @@ impl Decompressor for Ar {
                 fs::set_permissions(&outpath, fs::Permissions::from_mode(mode))?;
             }
         }
-        Ok(Decompression { id: "ar" })
+        Ok(Decompression { id: "ar", files })
     }
 }

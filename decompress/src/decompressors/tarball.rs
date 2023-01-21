@@ -1,5 +1,5 @@
 use crate::decompressors::tar_common::tar_extract;
-use crate::{DecompressError, Decompression, Decompressor, ExtractOpts};
+use crate::{DecompressError, Decompression, Decompressor, ExtractOpts, Listing};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -7,9 +7,18 @@ use std::{
     io::{BufReader, Read},
     path::Path,
 };
+use tar::Archive;
+
+use super::tar_common::tar_list;
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"(?i)\.tar$").unwrap();
+}
+
+fn build_archive(archive: &Path) -> Result<Archive<Box<dyn Read>>, DecompressError> {
+    let fd = BufReader::new(File::open(archive)?);
+    let out: tar::Archive<Box<dyn Read>> = tar::Archive::new(Box::new(fd));
+    Ok(out)
 }
 
 #[derive(Default)]
@@ -36,16 +45,22 @@ impl Decompressor for Tarball {
             .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
+    fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
+        Ok(Listing {
+            id: "tarball",
+            entries: tar_list(&mut build_archive(archive)?)?,
+        })
+    }
+
     fn decompress(
         &self,
         archive: &Path,
         to: &Path,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        let fd = BufReader::new(File::open(archive)?);
-        let mut out: tar::Archive<Box<dyn Read>> = tar::Archive::new(Box::new(fd));
-
-        tar_extract(&mut out, to, opts)?;
-        Ok(Decompression { id: "tarball" })
+        Ok(Decompression {
+            id: "tarball",
+            files: tar_extract(&mut build_archive(archive)?, to, opts)?,
+        })
     }
 }
