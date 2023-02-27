@@ -166,6 +166,8 @@ impl Default for Decompress {
                 Box::<decompressors::xz::Xz>::default(),
                 #[cfg(feature = "zstd")]
                 Box::<decompressors::zstd::Zstd>::default(),
+                #[cfg(feature = "rar")]
+                Box::<decompressors::unrar::Unrar>::default(),
             ],
         }
     }

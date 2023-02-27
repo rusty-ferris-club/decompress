@@ -22,6 +22,9 @@ pub mod targz;
 #[cfg(feature = "zip")]
 pub mod zip;
 
+#[cfg(feature = "rar")]
+pub mod unrar;
+
 #[cfg(feature = "ar")]
 pub mod ar;
 

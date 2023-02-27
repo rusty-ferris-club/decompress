@@ -33,6 +33,7 @@ use rstest::rstest;
 #[case("sub.txt.bz2", "bz_2", 0, "bz2")]
 #[case("sub.txt.xz", "xz_1", 0, "xz")]
 #[case("sub.txt.zst", "zstd_1", 0, "zst")]
+#[case("version.rar", "rar_1", 0, "rar")]
 #[trace]
 fn test_archives(
     #[case] archive: &str,
