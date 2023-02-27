@@ -1,6 +1,6 @@
 [package]
 name = "decompress"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 description = "Extracting archives made easy"
@@ -52,6 +52,7 @@ bzip2 = { version = "0.4.3", optional = true }
 flate2 = { version = "1.0.25", optional = true }
 xz = { version = "0.1.0", optional = true }
 zstd = { version = "0.12.0", optional = true }
+infer = "*"
 
 [dev-dependencies]
 dircmp = "0.2.0"

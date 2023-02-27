@@ -38,6 +38,10 @@ impl Tarball {
 }
 
 impl Decompressor for Tarball {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-tar"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

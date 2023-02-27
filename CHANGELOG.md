@@ -1,6 +1,9 @@
 # Changelog
 
-## vnext
+## 0.4.0
+
+* added content inference based decompression. select decompression by inferring content with `ExtractOpts.detect_content`
+* public API has a few more methods, e.g. `can_decompress`
 
 ## 0.2.0
 

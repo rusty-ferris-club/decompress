@@ -36,6 +36,10 @@ impl Ar {
 }
 
 impl Decompressor for Ar {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-unix-archive"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

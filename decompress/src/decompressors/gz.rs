@@ -25,6 +25,10 @@ impl Gz {
 }
 
 impl Decompressor for Gz {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/gzip"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

@@ -38,6 +38,10 @@ impl Tarxz {
 }
 
 impl Decompressor for Tarxz {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-xz"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

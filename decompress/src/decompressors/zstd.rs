@@ -24,6 +24,10 @@ impl Zstd {
 }
 
 impl Decompressor for Zstd {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/zstd"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

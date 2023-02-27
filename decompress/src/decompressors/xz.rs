@@ -24,6 +24,10 @@ impl Xz {
 }
 
 impl Decompressor for Xz {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-xz"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

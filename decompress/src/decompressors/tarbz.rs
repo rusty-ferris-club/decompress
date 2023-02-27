@@ -38,6 +38,10 @@ impl Tarbz {
 }
 
 impl Decompressor for Tarbz {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-bzip2"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

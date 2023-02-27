@@ -27,6 +27,10 @@ impl Bz2 {
 }
 
 impl Decompressor for Bz2 {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/x-bzip2"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()

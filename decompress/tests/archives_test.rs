@@ -59,6 +59,27 @@ fn test_archives(
     assert_eq!(res.id, id);
 }
 
+#[rstest]
+#[case("bare_ar", "content_bare_ar", "ar")]
+#[case("bare_tar_gz", "content_bare_tar_gz", "targz")]
+#[case("bare_tar_xz", "content_bare_tar_xz", "tarxz")]
+#[case("bare_zip", "content_bare_zip", "zip")]
+#[case("inner_tar_bz2", "content_inner_tar_bz2", "tarbz")]
+#[case("sub_txt_zst", "content_sub_txt_zst", "zst")]
+fn test_archives_content(#[case] archive: &str, #[case] outdir: &str, #[case] id: &str) {
+    let extract_opts = ExtractOptsBuilder::default()
+        .detect_content(true)
+        .build()
+        .unwrap();
+
+    let res = assertion(archive, outdir, |from, to| {
+        Decompress::default().decompress(from, to, &extract_opts)
+    })
+    .unwrap();
+
+    assert_eq!(res.id, id);
+}
+
 #[test]
 fn test_custom() {
     let extract_opts = ExtractOptsBuilder::default().build().unwrap();
@@ -156,7 +177,16 @@ fn test_can_list(#[case] archive: &str) {
     let target = format!("tests/fixtures/{archive}");
     assert_debug_snapshot!(
         format!("can_list_{archive}"),
-        (archive, Decompress::default().list(target))
+        (
+            archive,
+            Decompress::default().list(
+                target,
+                &ExtractOptsBuilder::default()
+                    .detect_content(false)
+                    .build()
+                    .unwrap()
+            )
+        )
     );
 }
 

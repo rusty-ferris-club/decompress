@@ -48,6 +48,9 @@ pub type MapFn = dyn Fn(&Path) -> Cow<'_, Path>;
 #[builder(pattern = "owned")]
 pub struct ExtractOpts {
     #[builder(default)]
+    pub detect_content: bool,
+
+    #[builder(default)]
     pub strip: usize,
 
     #[builder(setter(custom), default = "Box::new(|_| true)")]
@@ -95,6 +98,10 @@ pub struct Listing {
 /// decision when building a custom stack.
 ///
 pub trait Decompressor {
+    ///
+    /// Test if this `Decompressor` can unpack an archive, given a mimetype.
+    fn test_mimetype(&self, mimetype: &str) -> bool;
+
     ///
     /// Test if this `Decompressor` can unpack an archive, given a path.
     /// The convention is to use `Regex` internally to test a path, because this is
@@ -165,6 +172,30 @@ impl Default for Decompress {
 }
 
 impl Decompress {
+    /// Find a decompressor from the stack
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if IO fails
+    #[allow(clippy::borrowed_box)]
+    pub fn find_decompressor<P: AsRef<Path>>(
+        &self,
+        archive: P,
+        detect_content: bool,
+    ) -> Result<&Box<dyn Decompressor>, DecompressError> {
+        if detect_content {
+            let res = infer::get_from_path(archive.as_ref())?;
+            let mt = res.map(|t| t.mime_type());
+            mt.and_then(|mt| self.decompressors.iter().find(|dec| dec.test_mimetype(mt)))
+        } else {
+            println!("f: {:?} ", archive.as_ref());
+            self.decompressors
+                .iter()
+                .find(|dec| dec.test(archive.as_ref()))
+        }
+        .ok_or(DecompressError::MissingCompressor)
+    }
+
     /// Build given a custom stack of decompressors
     #[must_use]
     pub fn build(decompressors: Vec<Box<dyn Decompressor>>) -> Self {
@@ -176,17 +207,16 @@ impl Decompress {
     /// # Errors
     ///
     /// This function will return an error if an IO or parsing error happened
-    pub fn list<P: AsRef<Path>>(&self, archive: P) -> Result<Listing, DecompressError> {
-        if let Some(dec) = self
-            .decompressors
-            .iter()
-            .find(|dec| dec.test(archive.as_ref()))
-        {
-            return dec.list(archive.as_ref());
-        }
-        Err(DecompressError::MissingCompressor)
+    pub fn list<P: AsRef<Path>>(
+        &self,
+        archive: P,
+        opts: &ExtractOpts,
+    ) -> Result<Listing, DecompressError> {
+        self.find_decompressor(archive.as_ref(), opts.detect_content)
+            .and_then(|dec| dec.list(archive.as_ref()))
     }
-    /// Decompress
+
+    /// Decompress with a decompressor that is selected based on file name (cheaper)
     ///
     /// # Errors
     ///
@@ -197,22 +227,30 @@ impl Decompress {
         to: P,
         opts: &ExtractOpts,
     ) -> Result<Decompression, DecompressError> {
-        if let Some(dec) = self
-            .decompressors
-            .iter()
-            .find(|dec| dec.test(archive.as_ref()))
-        {
-            return dec.decompress(archive.as_ref(), to.as_ref(), opts);
-        }
-        Err(DecompressError::MissingCompressor)
+        self.find_decompressor(archive.as_ref(), opts.detect_content)
+            .and_then(|dec| dec.decompress(archive.as_ref(), to.as_ref(), opts))
     }
 
     /// Returns `true` if any of the decompressors in the stack can decompress this
-    /// specific archive
+    /// specific archive based on its content (reads first 8kb)
+    ///
+    /// # Errors
+    /// May fail if cannot read the file
+    pub fn can_decompress_content<P: AsRef<Path>>(
+        &self,
+        archive: P,
+    ) -> Result<bool, DecompressError> {
+        match self.find_decompressor(archive.as_ref(), true) {
+            Ok(_) => Ok(true),
+            Err(DecompressError::MissingCompressor) => Ok(false),
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Returns `true` if any of the decompressors in the stack can decompress this
+    /// specific archive based on its path (no file opening)
     pub fn can_decompress<P: AsRef<Path>>(&self, archive: P) -> bool {
-        self.decompressors
-            .iter()
-            .any(|dec| dec.test(archive.as_ref()))
+        self.find_decompressor(archive.as_ref(), false).is_ok()
     }
 }
 
@@ -234,6 +272,21 @@ pub fn decompress<P: AsRef<Path>>(
 /// # Errors
 ///
 /// This function will return an error if IO or parsing failed
-pub fn list<P: AsRef<Path>>(archive: P) -> Result<Listing, DecompressError> {
-    Decompress::default().list(archive)
+pub fn list<P: AsRef<Path>>(archive: P, opts: &ExtractOpts) -> Result<Listing, DecompressError> {
+    Decompress::default().list(archive, opts)
+}
+
+/// Returns `true` if any of the decompressors in the stack can decompress this
+/// specific archive based on its path (no file opening)
+pub fn can_decompress<P: AsRef<Path>>(archive: P) -> bool {
+    Decompress::default().can_decompress(archive)
+}
+
+/// Returns `true` if any of the decompressors in the stack can decompress this
+/// specific archive based on its content (reads first 8kb)
+///
+/// # Errors
+/// May fail if cannot read the file
+pub fn can_decompress_content<P: AsRef<Path>>(archive: P) -> Result<bool, DecompressError> {
+    Decompress::default().can_decompress_content(archive)
 }

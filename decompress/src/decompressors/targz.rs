@@ -38,6 +38,10 @@ impl Targz {
 }
 
 impl Decompressor for Targz {
+    fn test_mimetype(&self, archive: &str) -> bool {
+        archive == "application/gzip"
+    }
+
     fn test(&self, archive: &Path) -> bool {
         archive
             .file_name()
