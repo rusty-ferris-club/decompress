@@ -33,3 +33,5 @@ pub mod xz;
 
 #[cfg(feature = "zstd")]
 pub mod zstd;
+
+mod utils;

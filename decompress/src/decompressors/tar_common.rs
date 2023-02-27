@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::decompressors::utils::normalize_mode;
 use crate::{DecompressError, ExtractOpts};
 use tar::Archive;
 
@@ -72,6 +73,7 @@ pub fn tar_extract(
             {
                 use std::os::unix::fs::PermissionsExt;
                 if let Ok(mode) = h {
+                    let mode = normalize_mode(mode);
                     fs::set_permissions(&outpath, fs::Permissions::from_mode(mode))?;
                 }
             }
