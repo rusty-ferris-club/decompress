@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.6.0 
+* added `unrar`
 ## 0.4.0
 
 * added content inference based decompression. select decompression by inferring content with `ExtractOpts.detect_content`
