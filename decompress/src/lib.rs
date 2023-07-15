@@ -190,7 +190,6 @@ impl Decompress {
             let mt = res.map(|t| t.mime_type());
             mt.and_then(|mt| self.decompressors.iter().find(|dec| dec.test_mimetype(mt)))
         } else {
-            println!("f: {:?} ", archive.as_ref());
             self.decompressors
                 .iter()
                 .find(|dec| dec.test(archive.as_ref()))
